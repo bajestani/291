@@ -134,28 +134,38 @@ def drop(student_id, course_id):
 def GPA(grade):
     global connection, cursor
 
+    if grade == 'A':
+        return 4
+    if grade == 'B':
+        return 3
+    if grade == 'C':
+        return 2
+     
     ### YOUR PART ###
     # Map the grade to a numerical value
 
     return 0
 
 def main():
-    global connection, cursor
-
-    path="./register.db"
-    connect(path)
-    connection.create_function('GPA', 1, GPA)
-
-    define_tables()
-    insert_data()
-    enroll_assign_grades()
-
-    ### YOUR PART ###
-    # Use the GPA function to get a sorted list of the student names with their average GPAs.
-
-
-    connection.commit()
-    connection.close()
+global connection, cursor
+path = "./register.db"
+connect(path)
+connection.create_function('GPA', 1, GPA)
+define_tables()
+insert_data()
+enroll_assign_grades()
+cursor.execute('''
+    SELECT s.name, AVG(GPA(e.grade)) AS avg_gpa
+    FROM student AS s, enroll AS e
+    WHERE s.student_id = e.student_id
+    GROUP BY s.name
+    ORDER BY avg_gpa;
+        ''')
+all_entry = cursor.fetchall()
+for one_entry in all_entry:
+print(one_entry)
+connection.commit()
+connection.close()
     return
 
 if __name__ == "__main__":
