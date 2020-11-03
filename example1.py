@@ -117,6 +117,14 @@ def enroll(student_id, course_id):
 def drop(student_id, course_id):
     global connection, cursor
     
+    data = {'course_id': course_id, 'student_id': student_id}
+    cursor.execute("""
+        UPDATE course SET seats_available = seats_available + 1
+        WHERE course_id = :course_id AND NOT EXISTS (
+            SELECT * FROM enroll
+            WHERE student_id = :student_id AND course_id = :course_id
+        );
+        """, data)
     ### YOUR PART ###
     # Drop the course for the student and update the seats_avialable column
 
